@@ -62,7 +62,7 @@ function Add-ComputerAdministratorsGroupMember
 		
 		$adComputer = Try
 		{
-			$ComputerDomainName = "hke.local"
+			$ComputerDomainName = "thomas.local"
 			Get-ADComputer -Identity $ComputerName -ErrorAction Stop -Server $ComputerDomainName
 			
 		}
@@ -70,7 +70,7 @@ function Add-ComputerAdministratorsGroupMember
 		{
 			try
 			{
-				$ComputerDomainName = "hmf.hke.local"
+				$ComputerDomainName = "it.thomas.local"
 				Get-ADComputer -Identity $ComputerName -ErrorAction Stop -Server $ComputerDomainName
 			}
 			catch
@@ -85,14 +85,14 @@ function Add-ComputerAdministratorsGroupMember
 		
 		$adUser = try
 		{
-			$UserDomainName = "hke.local"
+			$UserDomainName = "thomas.local"
 			Get-ADUser -Identity $UserName -ErrorAction Stop -Server $UserDomainName
 		}
 		catch
 		{
 			try
 			{
-				$UserDomainName = "hmf.hke.local"
+				$UserDomainName = "it.thomas.local"
 				Get-ADUser -Identity $UserName -ErrorAction Stop -Server $UserDomainName
 			}
 			catch
@@ -218,7 +218,7 @@ function Remove-ComputerAdministratorsGroupMember
 		
 		$adComputer = Try
 		{
-			$ComputerDomainName = "hke.local"
+			$ComputerDomainName = "thomas.local"
 			Get-ADComputer -Identity $ComputerName -ErrorAction Stop -Server $ComputerDomainName
 			
 		}
@@ -226,7 +226,7 @@ function Remove-ComputerAdministratorsGroupMember
 		{
 			try
 			{
-				$ComputerDomainName = "hmf.hke.local"
+				$ComputerDomainName = "it.thomas.local"
 				Get-ADComputer -Identity $ComputerName -ErrorAction Stop -Server $ComputerDomainName
 			}
 			catch
@@ -241,14 +241,14 @@ function Remove-ComputerAdministratorsGroupMember
 		
 		$adUser = try
 		{
-			$UserDomainName = "hke.local"
+			$UserDomainName = "thomas.local"
 			Get-ADUser -Identity $UserName -ErrorAction Stop -Server $UserDomainName
 		}
 		catch
 		{
 			try
 			{
-				$UserDomainName = "hmf.hke.local"
+				$UserDomainName = "it.thomas.local"
 				Get-ADUser -Identity $UserName -ErrorAction Stop -Server $UserDomainName
 			}
 			catch
@@ -324,7 +324,7 @@ function Search-ComputerAdministratorsGroupMember
 	{
 		$adComputer = Try
 		{
-			$ComputerDomainName = "hke.local"
+			$ComputerDomainName = "thomas.local"
 			Get-ADComputer -Identity $ComputerName -ErrorAction Stop -Server $ComputerDomainName
 			
 		}
@@ -332,7 +332,7 @@ function Search-ComputerAdministratorsGroupMember
 		{
 			try
 			{
-				$ComputerDomainName = "hmf.hke.local"
+				$ComputerDomainName = "it.thomas.local"
 				Get-ADComputer -Identity $ComputerName -ErrorAction Stop -Server $ComputerDomainName
 			}
 			catch
@@ -347,14 +347,14 @@ function Search-ComputerAdministratorsGroupMember
 		
 		$adUser = try
 		{
-			$UserDomainName = "hke.local"
+			$UserDomainName = "thomas.local"
 			Get-ADUser -Identity $UserName -ErrorAction Stop -Server $UserDomainName
 		}
 		catch
 		{
 			try
 			{
-				$UserDomainName = "hmf.hke.local"
+				$UserDomainName = "it.thomas.local"
 				Get-ADUser -Identity $UserName -ErrorAction Stop -Server $UserDomainName
 			}
 			catch
