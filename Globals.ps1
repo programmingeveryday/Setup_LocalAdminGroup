@@ -1,8 +1,8 @@
 ﻿#--------------------------------------------
 # Declare Global Variables and Functions here
 #--------------------------------------------
-$domainOne = "hke.local"
-$domainTwo = "hmf.hke.local"
+$domainOne = "thomas.local"
+$domainTwo = "it.thomas.local"
 #Sample function that provides the location of the script
 function Get-ScriptDirectory
 {
