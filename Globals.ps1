@@ -1,8 +1,13 @@
 ﻿#--------------------------------------------
 # Declare Global Variables and Functions here
 #--------------------------------------------
-$domainOne = "thomas.local"
-$domainTwo = "it.thomas.local"
+$domainOne = "hke.local"
+$domainTwo = "hmf.hke.local"
+$global:dateToRemove = Get-Date 
+
+
+
+
 #Sample function that provides the location of the script
 function Get-ScriptDirectory
 {
@@ -64,15 +69,28 @@ function Add-ComputerAdministratorsGroupMember
 		$adComputer = Try
 		{
 			$ComputerDomainName = $domainOne
-			Get-ADComputer -Identity $ComputerName -ErrorAction Stop -Server $ComputerDomainName
-			
+			if (!$global:Credential)
+			{
+				Get-ADComputer -Identity $ComputerName -ErrorAction Stop -Server $ComputerDomainName
+			}
+			else
+			{
+				Get-ADComputer -Identity $ComputerName -ErrorAction Stop -Server $ComputerDomainName -Credential $global:Credential
+			}
 		}
 		catch
 		{
 			try
 			{
 				$ComputerDomainName = $domainTwo
-				Get-ADComputer -Identity $ComputerName -ErrorAction Stop -Server $ComputerDomainName
+				if (!$global:Credential)
+				{
+					Get-ADComputer -Identity $ComputerName -ErrorAction Stop -Server $ComputerDomainName
+				}
+				else
+				{
+					Get-ADComputer -Identity $ComputerName -ErrorAction Stop -Server $ComputerDomainName -Credential $global:Credential
+				}
 			}
 			catch
 			{
@@ -87,14 +105,30 @@ function Add-ComputerAdministratorsGroupMember
 		$adUser = try
 		{
 			$UserDomainName = $domainOne
-			Get-ADUser -Identity $UserName -ErrorAction Stop -Server $UserDomainName
+			if (!$global:Credential)
+			{
+				Get-ADUser -Identity $UserName -ErrorAction Stop -Server $UserDomainName
+			}
+			else
+			{
+				Get-ADUser -Identity $UserName -ErrorAction Stop -Server $UserDomainName -Credential $global:Credential
+			}
+			
 		}
 		catch
 		{
 			try
 			{
 				$UserDomainName = $domainTwo
-				Get-ADUser -Identity $UserName -ErrorAction Stop -Server $UserDomainName
+				if (!$global:Credential)
+				{
+					Get-ADUser -Identity $UserName -ErrorAction Stop -Server $UserDomainName
+				}
+				else
+				{
+					
+					Get-ADUser -Identity $UserName -ErrorAction Stop -Server $UserDomainName -Credential $global:Credential
+				}
 			}
 			catch
 			{
@@ -113,8 +147,17 @@ function Add-ComputerAdministratorsGroupMember
 		
 		$ExemptOU = try
 		{
-			(Get-ADOrganizationalUnit -Filter 'Name -like "Exempt"' -ErrorAction Stop -Server $ComputerDomainName |
-				Where-Object { $_.DistinguishedName -like "*$CBU*" }).DistinguishedName
+			if (!$global:Credential)
+			{
+				(Get-ADOrganizationalUnit -Filter 'Name -like "Exempt"' -ErrorAction Stop -Server $ComputerDomainName |
+					Where-Object { $_.DistinguishedName -like "*$CBU*" }).DistinguishedName
+			}
+			else
+			{
+				(Get-ADOrganizationalUnit -Filter 'Name -like "Exempt"' -ErrorAction Stop -Server $ComputerDomainName -Credential $global:Credential |
+					Where-Object { $_.DistinguishedName -like "*$CBU*" }).DistinguishedName
+			}
+			
 		}
 		catch { $_ }
 		
@@ -122,30 +165,63 @@ function Add-ComputerAdministratorsGroupMember
 		
 		$exemptADGroup = try
 		{
-			Get-ADGroup $localComputerAdminGroup -ErrorAction Stop -Server $ComputerDomainName
+			if (!$global:Credential)
+			{
+				Get-ADGroup $localComputerAdminGroup -ErrorAction Stop -Server $ComputerDomainName
+			}
+			else
+			{
+				Get-ADGroup $localComputerAdminGroup -ErrorAction Stop -Server $ComputerDomainName -Credential $global:Credential
+			}
+			
 		}
 		catch
 		{
 			try
 			{
-				New-ADGroup -Name $localComputerAdminGroup -GroupScope DomainLocal -Path $ExemptOU -ErrorAction Stop -Server $ComputerDomainName
-				Get-ADGroup $localComputerAdminGroup -ErrorAction Stop -Server $ComputerDomainName
+				if (!$global:Credential)
+				{
+					New-ADGroup -Name $localComputerAdminGroup -GroupScope DomainLocal -Path $ExemptOU -ErrorAction Stop -Server $ComputerDomainName
+					Get-ADGroup $localComputerAdminGroup -ErrorAction Stop -Server $ComputerDomainName
+				}
+				else
+				{
+					
+					New-ADGroup -Name $localComputerAdminGroup -GroupScope DomainLocal -Path $ExemptOU -ErrorAction Stop -Server $ComputerDomainName -Credential $global:Credential
+					Get-ADGroup $localComputerAdminGroup -ErrorAction Stop -Server $ComputerDomainName -Credential $global:Credential
+				}
+				
 			}
 			catch { $_ }
 		}
 		
 		try
 		{
-			$enableGPOGroup = Get-ADGroup -Identity 'Enable GPO - HKE Local Admin - Computer' -Server $ComputerDomainName -ErrorAction Stop
-			try
+			if (!$global:Credential)
+			{
+				$enableGPOGroup = Get-ADGroup -Identity 'Enable GPO - HKE Local Admin - Computer' -Server $ComputerDomainName -ErrorAction Stop
+			}else
+			{
+				$enableGPOGroup = Get-ADGroup -Identity 'Enable GPO - HKE Local Admin - Computer' -Server $ComputerDomainName -ErrorAction Stop -Credential $global:Credential
+			}
+		
+		try
 			{
 				if (!($enableGPOGroup | Get-ADGroupMember | Where-Object{$_.name -eq $adComputer.name}))
 				{
-					$enableGPOGroup | Add-ADGroupMember -Server $ComputerDomainName -Members $adComputer -ErrorAction Stop
-					$("Added: {0} to `"{1}`"`n" -f $adComputer.name, $enableGPOGroup.name )
+					if (!$global:Credential)
+					{
+						$enableGPOGroup | Add-ADGroupMember -Server $ComputerDomainName -Members $adComputer -ErrorAction Stop
+						
+					}
+					else
+					{
+						$enableGPOGroup | Add-ADGroupMember -Server $ComputerDomainName -Members $adComputer -ErrorAction Stop -Credential $global:Credential
+					}
 				}
-				
-			}catch{$_}
+					$("Added: {0} to `"{1}`"`n" -f $adComputer.name, $enableGPOGroup.name)	
+			}
+			catch { $_ }
 		}
 		catch { $_ }
 		
@@ -153,22 +229,40 @@ function Add-ComputerAdministratorsGroupMember
 		{
 			
 			try
+		{
+			if (!$global:Credential)
 			{
 				$groupMemebrs = $exemptADGroup | Get-ADGroupMember -ErrorAction Stop -Server $ComputerDomainName
 				try
 				{
 					if (!($groupMemebrs | Where-Object{ $_.SamAccountName -eq $adUser.SamAccountName }))
 					{
-						$exemptADGroup | Add-ADGroupMember -Members $adUser -ErrorAction Stop -Server $ComputerDomainName					
+						$exemptADGroup | Add-ADGroupMember -Members $adUser -ErrorAction Stop -Server $ComputerDomainName
 						$exemptADGroup | Get-ADGroupMember -ErrorAction Stop -Server $ComputerDomainName
 					}
 					else { $groupMemebrs }
 				}
 				catch { $_ }
 			}
-			catch { $_ }
+			else
+			{
+				$groupMemebrs = $exemptADGroup | Get-ADGroupMember -ErrorAction Stop -Server $ComputerDomainName -Credential $global:Credential
+				try
+				{
+					if (!($groupMemebrs | Where-Object{ $_.SamAccountName -eq $adUser.SamAccountName }))
+					{
+						$exemptADGroup | Add-ADGroupMember -Members $adUser -ErrorAction Stop -Server $ComputerDomainName -Credential $global:Credential
+						$exemptADGroup | Get-ADGroupMember -ErrorAction Stop -Server $ComputerDomainName -Credential $global:Credential
+					}
+					else { $groupMemebrs }
+				}
+				catch { $_ }
+			}
+			
 		}
-		if ($exemptADGroup.Name)
+		catch { $_ }
+	}
+	if ($exemptADGroup.Name)
 		{
 			 $("Administators Group Name: `"{0}`" setup in {1}`n" -f $exemptADGroup.Name, $ExemptOU)
 		}
@@ -183,7 +277,7 @@ function Add-ComputerAdministratorsGroupMember
 		}
 		else
 		{
-			 $("Issue Adding: {0} to membership of `"{1}`"`n" -f $adUser.Name, $exemptADGroup.Name)
+			 $("Issue Adding: {0} to membership of `"{1}`"`n{2}" -f $adUser.Name, $exemptADGroup.Name, $addedExemptADGroupMember)
 		}
 	}
 }
@@ -220,7 +314,14 @@ function Remove-ComputerAdministratorsGroupMember
 		$adComputer = Try
 		{
 			$ComputerDomainName = $domainOne
-			Get-ADComputer -Identity $ComputerName -ErrorAction Stop -Server $ComputerDomainName
+			if (!$global:Credential)
+			{
+				Get-ADComputer -Identity $ComputerName -ErrorAction Stop -Server $ComputerDomainName
+			}
+			else
+			{
+				Get-ADComputer -Identity $ComputerName -ErrorAction Stop -Server $ComputerDomainName -Credential $global:Credential
+			}
 			
 		}
 		catch
@@ -228,7 +329,14 @@ function Remove-ComputerAdministratorsGroupMember
 			try
 			{
 				$ComputerDomainName = $domainTwo
-				Get-ADComputer -Identity $ComputerName -ErrorAction Stop -Server $ComputerDomainName
+				if (!$global:Credential)
+				{
+					Get-ADComputer -Identity $ComputerName -ErrorAction Stop -Server $ComputerDomainName
+				}
+				else
+				{
+					Get-ADComputer -Identity $ComputerName -ErrorAction Stop -Server $ComputerDomainName -Credential $global:Credential
+				}
 			}
 			catch
 			{
@@ -243,14 +351,28 @@ function Remove-ComputerAdministratorsGroupMember
 		$adUser = try
 		{
 			$UserDomainName = $domainOne
-			Get-ADUser -Identity $UserName -ErrorAction Stop -Server $UserDomainName
+			if (!$global:Credential)
+			{
+				Get-ADUser -Identity $UserName -ErrorAction Stop -Server $UserDomainName
+			}
+			else
+			{
+				Get-ADUser -Identity $UserName -ErrorAction Stop -Server $UserDomainName -Credential $global:Credential
+			}
 		}
 		catch
 		{
 			try
 			{
 				$UserDomainName = $domainTwo
-				Get-ADUser -Identity $UserName -ErrorAction Stop -Server $UserDomainName
+				if (!$global:Credential)
+				{
+					Get-ADUser -Identity $UserName -ErrorAction Stop -Server $UserDomainName
+				}
+				else
+				{
+					Get-ADUser -Identity $UserName -ErrorAction Stop -Server $UserDomainName -Credential $global:Credential
+				}
 			}
 			catch
 			{
@@ -268,21 +390,44 @@ function Remove-ComputerAdministratorsGroupMember
 		
 		$exemptADGroup = try
 		{
-			Get-ADGroup $localComputerAdminGroup -ErrorAction Stop -Server $ComputerDomainName
+			if (!$global:Credential)
+			{
+				Get-ADGroup $localComputerAdminGroup -ErrorAction Stop -Server $ComputerDomainName
+			}
+			else
+			{
+				Get-ADGroup $localComputerAdminGroup -ErrorAction Stop -Server $ComputerDomainName -Credential $global:Credential
+			}
 		}
 		catch { $_ }
 		if ($exemptADGroup.Name)
 		{
 			try
 			{
-				if (Get-ADGroupMember $localComputerAdminGroup -ErrorAction Stop -Server $ComputerDomainName | Where-Object { $_.SamAccountName -eq $adUser.SamAccountName })
+				if (!$global:Credential)
 				{
-					$exemptADGroup | Remove-ADGroupMember -Members $adUser -Confirm:$false -ErrorAction Stop
-					 $("Removed {0} from AD group `"{1}`"`n" -f $adUser.Name, $exemptADGroup.Name)
+					if (Get-ADGroupMember $localComputerAdminGroup -ErrorAction Stop -Server $ComputerDomainName | Where-Object { $_.SamAccountName -eq $adUser.SamAccountName })
+					{
+						$exemptADGroup | Remove-ADGroupMember -Members $adUser -Confirm:$false -ErrorAction Stop
+						$("Removed {0} from AD group `"{1}`"`n" -f $adUser.Name, $exemptADGroup.Name)
+					}
+					else
+					{
+						$("User {0} not found in AD group `"{1}`"`n" -f $adUser.Name, $exemptADGroup.Name)
+					}
 				}
 				else
 				{
-					 $("User {0} not found in AD group `"{1}`"`n" -f $adUser.Name, $exemptADGroup.Name)
+					if (Get-ADGroupMember $localComputerAdminGroup -ErrorAction Stop -Server $ComputerDomainName -Credential $global:Credential | Where-Object { $_.SamAccountName -eq $adUser.SamAccountName })
+					{
+						$exemptADGroup | Remove-ADGroupMember -Credential $global:Credential -Members $adUser -Confirm:$false -ErrorAction Stop
+						$("Removed {0} from AD group `"{1}`"`n" -f $adUser.Name, $exemptADGroup.Name)
+					}
+					else
+					{
+						$("User {0} not found in AD group `"{1}`"`n" -f $adUser.Name, $exemptADGroup.Name)
+					}
+					
 				}
 			}
 			catch
